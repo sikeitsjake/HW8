@@ -17,7 +17,7 @@ class MatrixCalc {
         void calculateD(int A[2][2], int B[2][3], int CT[3][2], int finalMatrix[2][2]);
         void multiplyBCT(int B[2][3], int CT[3][2], int result[2][2]);
         void scalar3(int B[2][3], int scalar = 3);
-        void addAB()
+        void addAResult(int A[2][2], int result[2][2]);
 };
 
 int main() {
@@ -41,6 +41,7 @@ int main() {
 void MatrixCalc::calculateD(int A[2][2], int B[2][3], int CT[3][2], int finalMatrix[2][2]) {
     scalar3(B, 3);
     multiplyBCT(B, CT, finalMatrix);
+    addAResult(A, finalMatrix);
 }
 
 void MatrixCalc::multiplyBCT(int B[2][3], int CT[3][2], int result[2][2]) {
@@ -59,6 +60,14 @@ void MatrixCalc::scalar3(int B[2][3], int scalar) {
     for(int i = 0; i < 2; i++) {
         for(int j = 0; j < 3; j++) {
             B[i][j] *= scalar;
+        }
+    }
+}
+
+void MatrixCalc::addAResult(int A[2][2], int result[2][2]) {
+    for(int i = 0; i < 2; i++) {
+        for(int j = 0; j < 2; j++) {
+            result[i][j] += A[i][j];
         }
     }
 }
