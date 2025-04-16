@@ -9,7 +9,6 @@ Title: matrix.cpp
 #include <iostream>
 #include <iomanip>
 #include <string>
-
 using namespace std;
 
 class MatrixCalc {
