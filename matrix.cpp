@@ -11,62 +11,129 @@ Title: matrix.cpp
 #include <string>
 using namespace std;
 
-class MatrixCalc {
+class Matrix {
     public:
-        void calculateD(int A[2][2], int B[2][3], int CT[3][2], int finalMatrix[2][2]);
-        void multiplyBCT(int B[2][3], int CT[3][2], int result[2][2]);
-        void scalar3(int B[2][3], int scalar = 3);
-        void addAResult(int A[2][2], int result[2][2]);
+        // 2D Vector Matrix
+        vector<vector<int>> m_data;
+        string m_name;
+        int m_cols;
+        int m_rows;
+
+        Matrix(int rows, int cols, string name, int value = 0);
+        void populate();
+        void printMatrix();
+        Matrix findTranspose();
+        Matrix operator*(int scalar);
+        Matrix operator*(const Matrix);
+        Matrix operator+(const Matrix);
+
 };
 
 int main() {
-    MatrixCalc calc;
-    int A[2][2] = {{6, 4}, {8, 3}};
-    int B[2][3] = {{1, 2, 3}, {4, 5, 6}};
-    int CT[3][2] = {{2, 1}, {4, 3}, {6, 5}};
-    int resultMatrix[2][2];
+    // make matrix A (2x2) and populate
+    Matrix A(2, 2, "A");
+    A.populate();
 
-    calc.calculateD(A, B, CT, resultMatrix);
+    // make a 2x3 matrix and populate
+    Matrix B(2, 3, "B");
+    B.populate();
 
-    for(int i = 0; i < 2; i++) {
-        for(int j = 0; j < 2; j++) {
-            cout << resultMatrix[i][j] << " ";
-        }
-        cout << endl;
+    // make matrix C, populate, then find its transpose.
+    Matrix C(2, 3, "C");
+    C.populate();
+    Matrix CTranspose = C.findTranspose();
+
+    try {
+        Matrix D = A + (B * 3) * CTranspose;
+        D.printMatrix();
     }
+    catch(const out_of_range error) {
+        cout << "Execption has Occured: " << error.what() << endl;
+        return 1;
+    }
+
     return 0;
 }
 
-void MatrixCalc::calculateD(int A[2][2], int B[2][3], int CT[3][2], int finalMatrix[2][2]) {
-    scalar3(B, 3);
-    multiplyBCT(B, CT, finalMatrix);
-    addAResult(A, finalMatrix);
+Matrix::Matrix(int rows, int cols, string name , int value) {
+    m_data = vector<vector<int>>(rows, vector<int>(cols, value));
+    m_name = name;
+    m_cols = cols;
+    m_rows = rows;
 }
 
-void MatrixCalc::multiplyBCT(int B[2][3], int CT[3][2], int result[2][2]) {
-    for(int i = 0; i < 2; i++) {
-        for(int j = 0; j < 2; j++) {
-            result[i][j] = 0;
-            for(int k = 0; k < 3; k++) {
-                result[i][j] += B[i][k] * CT[k][j];
+void Matrix::populate() {
+    cout << "Populating Matrix: " << m_name << endl;
+    for(int i = 0; i < m_rows; i++) {
+        for(int j = 0; j < m_cols; j++) {
+            cout << "Enter element for matrix position (" << i << ", " << j << "): ";
+            cin >> m_data[i][j];
+        }
+    }
+    cout << endl;
+}
+
+void Matrix::printMatrix() {
+
+    // Iterates the matrix and prints each index
+    for(int i = 0; i < m_rows; i++) {
+        for(int j = 0; j < m_cols; j++) {
+            cout << m_data[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+Matrix Matrix::findTranspose() {
+    Matrix tranpose(m_cols, m_rows, m_name + "Trans");
+
+    for(int i = 0; i < m_rows; i++) {
+        for(int j = 0; j < m_cols; j++) {
+            tranpose.m_data[j][i] = m_data[i][j];
+        }
+    }
+
+    return tranpose;
+}
+
+Matrix Matrix::operator*(int scalar) {
+
+    for(int i = 0; i < m_rows; i++) {
+        for(int j = 0; j < m_cols; j++) {
+            m_data[i][j] = m_data[i][j] * scalar;
+        }
+    }
+    return *this;
+}
+
+Matrix Matrix::operator*(const Matrix rhs) {
+
+    if(m_rows != rhs.m_cols) {
+        throw out_of_range("Matrix A cannot be multiplied by Matrix B");
+    }
+
+    Matrix result(m_rows, rhs.m_cols, "result");
+
+    for (int i = 0; i < m_rows; ++i) {
+        for (int j = 0; j < rhs.m_cols; ++j) {
+            result.m_data[i][j] = 0;
+            for (int k = 0; k < m_cols; ++k) {
+                result.m_data[i][j] += m_data[i][k] * rhs.m_data[k][j];
             }
         }
     }
-    return;
+    return result;
 }
 
-void MatrixCalc::scalar3(int B[2][3], int scalar) {
-    for(int i = 0; i < 2; i++) {
-        for(int j = 0; j < 3; j++) {
-            B[i][j] *= scalar;
-        }
+Matrix Matrix::operator+(const Matrix rhs) {
+    if(rhs.m_rows != m_rows || rhs.m_cols != m_cols) {
+        throw out_of_range("Cannot add these Matricies");
     }
-}
 
-void MatrixCalc::addAResult(int A[2][2], int result[2][2]) {
-    for(int i = 0; i < 2; i++) {
-        for(int j = 0; j < 2; j++) {
-            result[i][j] += A[i][j];
+    for(int i = 0; i < m_rows; i++) {
+        for(int j = 0; j < m_cols; j++) {
+            m_data[i][j] += rhs.m_data[i][j];
         }
     }
+    return *this;
 }
